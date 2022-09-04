@@ -54,32 +54,9 @@ Table.security = {
 
 ---@return boolean
 function Table.isTable(v)
-    return type(v) == 'table';
+    return v and type(v) == 'table';
 end
 
----`[ADP中存在重复代码]`判断：中间不存在空洞的表！纯列表！
----@return boolean
-function Table.isSequence(t)
-    if (type(t) ~= 'table') then
-        return false;
-    end
-
-    local list_index = {};
-    for k, _ in pairs(t) --[[nil 也赋序号]] do
-        if (type(k) == 'number') then
-            table.insert(list_index, k);
-        end
-    end
-
-    table.sort(list_index);
-
-    local length = #list_index;
-    if (list_index[length] == length) then
-        return true;
-    end
-
-    return false;
-end
 
 --[[do
     -- Test code
@@ -96,21 +73,13 @@ end]]
 -- 说明：next 函数，next(t,k) 返回下一个键以及 k 对应的值，next(t, nil) 返回第二个键和第一个键值
 ---@return boolean
 function Table.isEmpty(t)
-    if (type(t) ~= 'table') then
-        return false;
-    end
-    return not next(t, nil);
+    return not next(t);
 end
 
 ---@return number
 function Table.getSize(t)
-    if (type(t) ~= 'table') then
+    if (not self.isTable(t)) then
         return 0;
-    end
-
-    -- 若存在 ['n'] 键
-    if (t.n) then
-        return t.n;
     end
 
     local length = 0;
@@ -172,8 +141,8 @@ function Table.print(t, mode, filepath)
         end
     end)
 
-    self.push_front(msg, '{\n');
-    self.push_back(msg, '}\n');
+    table.insert(msg,1,'{\n');
+    table.insert(msg,'}\n');
 
     local content = table.concat(msg);
 
@@ -244,11 +213,13 @@ function Table.clone(t)
     return c;
 end
 
----`[Lua 5.3]`浅拷贝表
+---`[Lua 5.3]`浅拷贝表（没必要）
 function Table.clone2(t)
     Assertion:isType(t, 'table');
 
     local c = {};
+
+    -- 不太对！table.move 针对的也是序列吧？
     table.move(t, 1, #t, 1, c);
     return c;
 end
@@ -270,20 +241,8 @@ end
 ---@return table
 function Table.pack(...)
     local args = { ... };
-
-    if (self.isSequence(args)) then
-        args.n = #args;
-        return args;
-    end
-
-    local keys = {};
-    for k, _ in pairs(args) --[[注意：空洞也有索引！]] do
-        table.insert(keys, k);
-    end
-    table.sort(keys);
-
-    args.n = keys[#keys];
-
+    local length = self.getSize(args);
+    args.n = length;
     return args;
 end
 
@@ -307,12 +266,9 @@ end]]
 
 ---`[兼容 Lua 5.1]`建议配合 Table:pack(...) 使用
 function Table.unpack(list, i, j)
-    if (not self.isSequence(list)) then
-        error('Not a sequence!', 2);
-    end
     i = i or 1;
 
-    -- NOTE：#list 千万不要在有空洞的 nil 里面使用！因为有时候居然正确，有时候会错误！
+    -- NOTE：# 千万不要在有空洞的 nil 里面使用！因为有时候居然正确，有时候会错误！
     -- NOTE: 比如：{ 1, nil, 2, nil } --> #list == 1, { 1,nil,2,nil,3,nil } --> #list == 3
     -- NOTE: 不同于 iparis，ipairs 遇 nil 即停！
     j = j or list.n or #list;
@@ -322,72 +278,6 @@ function Table.unpack(list, i, j)
     end
 end
 
-local function add_list_n(list, amount)
-    amount = amount or 1;
-    if (list.n) then
-        list.n = list.n + amount;
-    end
-end
-
-local function sub_list_n(list, amount)
-    amount = amount or 1;
-    if (list.n) then
-        list.n = list.n - amount;
-    end
-end
-
--- NOTE: 由于 table 标准库中的这些函数是使用 C 语言实现的，所以移动元素所涉及的循环的性能开销也并不是太昂贵，因而，对于几百个元素的小数组来说这种实现已经足矣。
-
----`[FIXME: 应该移到列表模块中！]`头 插入数据
-function Table.push_front(list, e)
-    table.insert(list, 1, e);
-    add_list_n(list);
-    return list;
-end
-
----`[FIXME: 应该移到列表模块中！]``[Lua 5.3]`头 插入数据
-function Table.push_front2(list, e)
-    table.move(list, 1, #list, 2);
-    list[1] = e;
-    add_list_n(list);
-    return list;
-end
-
----`[FIXME: 应该移到列表模块中！]`尾 插入数据
-function Table.push_back(list, e)
-    table.insert(list, e);
-    add_list_n(list);
-    return list;
-end
-
----`[FIXME: 应该移到列表模块中！]`头 删除数据
-function Table.pop_front(list)
-    table.remove(list, 1);
-    sub_list_n(list);
-    return list;
-end
-
----`[FIXME: 应该移到列表模块中！]``[Lua 5.3]`头 删除数据
-function Table.pop_front2(list)
-    table.move(list, 2, #list, 1);
-    list[#list] = nil; -- 显示删除最后一个元素
-    sub_list_n(list);
-    return list;
-end
-
----`[FIXME: 应该移到列表模块中！]`尾 删除数据
-function Table.pop_back(list)
-    table.remove(list);
-    sub_list_n(list);
-    return list;
-end
-
----`[FIXME: 应该移到列表模块中！]``[Lua 5.3]`将列表 a 的元素克隆到列表 b 的末尾
-function Table:add2(a, b)
-    table.move(a, 1, #a, #b + 1, b);
-    add_list_n(b, #a);
-    return b;
-end
 
 --[[do
     -- Test code: push_front、push_back、pop_front、pop_back
@@ -462,7 +352,11 @@ end
 
 ---仅适用索引表！不存在任何空洞的那种，1, 2, 3, ..., n
 function Table.reverse(t)
-    Assertion.isType(t, 'list');
+    local Sequence = require('chang.modules.utils.Sequence');
+    if (not Sequence.isSequence(t)) then
+        return t;
+    end
+    -- NOTE: 除此处外，尽量不要再在其他地方使用 Sequence 了！循环依赖了！
 
     local size = #t;
     local new_sequence = {};
@@ -513,6 +407,73 @@ end]]
 ---`[弃用]`
 function Table:isList(t)
     return self.isSequence(t);
+end
+
+---`[弃用]`判断：中间不存在空洞的表！纯列表！
+---@return boolean
+function Table.isSequence(t)
+    local Sequence = require('chang.modules.utils.Sequence');
+    return Sequence.isSequence(t);
+end
+
+---`[弃用]`
+local function add_list_n(list, amount)
+    amount = amount or 1;
+    if (list.n) then
+        list.n = list.n + amount;
+    end
+end
+
+---`[弃用]`
+local function sub_list_n(list, amount)
+    amount = amount or 1;
+    if (list.n) then
+        list.n = list.n - amount;
+    end
+end
+
+-- NOTE: 由于 table 标准库中的这些函数是使用 C 语言实现的，所以移动元素所涉及的循环的性能开销也并不是太昂贵，因而，对于几百个元素的小数组来说这种实现已经足矣。
+
+---`[弃用]`头 插入数据
+function Table.push_front(list, e)
+    local Sequence = require('chang.modules.utils.Sequence');
+    return Sequence.push_front(list);
+end
+
+---`[弃用]``[Lua 5.3]`头 插入数据
+function Table.push_front2(list, e)
+    local Sequence = require('chang.modules.utils.Sequence');
+    return Sequence.push_front2(list);
+end
+
+---`[弃用]`尾 插入数据
+function Table.push_back(list, e)
+    local Sequence = require('chang.modules.utils.Sequence');
+    return Sequence.push_back(list);
+end
+
+---`[弃用]`头 删除数据
+function Table.pop_front(list)
+    local Sequence = require('chang.modules.utils.Sequence');
+    return Sequence.pop_front(list);
+end
+
+---`[弃用]``[Lua 5.3]`头 删除数据
+function Table.pop_front2(list)
+    local Sequence = require('chang.modules.utils.Sequence');
+    return Sequence.pop_front2(list);
+end
+
+---`[弃用]`尾 删除数据
+function Table.pop_back(list)
+    local Sequence = require('chang.modules.utils.Sequence');
+    return Sequence.pop_back(list);
+end
+
+---`[弃用]``[Lua 5.3]`将列表 a 的元素克隆到列表 b 的末尾
+function Table:add2(a, b)
+    local Sequence = require('chang.modules.utils.Sequence');
+    return Sequence.add2(a,b);
 end
 
 return Table;

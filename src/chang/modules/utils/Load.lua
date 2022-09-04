@@ -21,7 +21,7 @@ local self = Load;
 function Load.loadfile(path)
     local f, msg = loadfile(path);
     if (not f) then
-        print('Load.loadfile --> ERROR!!!', msg);
+        print('Load.loadfile --> ERROR', msg);
         if (string.find(msg, 'No such file or directory')) then
             return nil;
         end
@@ -42,7 +42,7 @@ function Load.pcall(f, arg1, ...)
     local results = Table.pop_front(args);
 
     if (not ok) then
-        print('Load.pcall --> ERROR!!!', results[1]);
+        print('Load.pcall --> ERROR', results[1]);
         return nil;
     else
         return Table.unpack(results);
@@ -66,7 +66,7 @@ function Load.xpcall(f, msgh, arg1, ...)
     msgh = function(msg--[[虽然参数只有一个，但是可以构成闭包呀！]])
         -- 注意这样是错误的，可变长参数需要在外部转成表然后构成闭包使用！
         -- print('msgh >',...);
-        print('Load.xpcall --> ERROR!!!', msg);
+        print('Load.xpcall --> ERROR', msg);
         if (old_msgh and type(old_msgh) == 'function') then
             old_msgh(msg);
         end
@@ -109,7 +109,7 @@ function Load.dostring(chunk, chunkname, mode, env)
     env = env or _G; -- 避免设置模块独占环境后，出现问题！（没必要，env 默认是 全局环境 _G）
     local f, msg = load(chunk, chunkname, mode, env);
     if (not f) then
-        print('ERROR!!!', msg);
+        print('ERROR', msg);
     else
         return f();
     end

@@ -1,6 +1,4 @@
 ---
---- @author zsh in 2022/9/4 0:39
---- 列表
-
--- List、Array、Sequence、Set 区分一下！！！
+--- @author zsh in 2022/9/5 0:07
+--- 列表 (list)
  

@@ -7,14 +7,11 @@ local Assertion = require('chang.modules.utils.Assertion');
 local Date = require('chang.modules.utils.Date');
 local Debug = require('chang.modules.utils.Debug');
 local File = require('chang.modules.utils.File');
-local IO = require('chang.modules.utils.IO');
 local Load = require('chang.modules.utils.Load');
 local Math = require('chang.modules.utils.Math');
-local Set = require('chang.modules.utils.Set');
-local String = require('chang.modules.utils.String');
+local Set = require('chang.modules.utils.incomplete.Set');
 local Table = require('chang.modules.utils.Table');
-local Thread = require('chang.modules.utils.Thread');
-local Timer = require('chang.modules.utils.Timer');
+
 
 -- 主程序块部分
 

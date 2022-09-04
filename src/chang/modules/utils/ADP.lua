@@ -12,35 +12,13 @@ _G.setmetatable(_ENV, { __index = function(_, k)
 end });
 
 -- 导入部分
--- 不能有其他依赖
+-- 千万不能有其他依赖！公共模块应该绝对"高内聚低耦合"！
 
 -- 模块初始化
 local ADP = {};
 local self = ADP;
 
----`[utils/Table.lua]`判断：中间不存在空洞的表！纯列表！
----@return boolean
-function ADP.isSequence(t)
-    if (type(t) ~= 'table') then
-        return false;
-    end
 
-    local list_index = {};
-    for k, _ in pairs(t) --[[nil 也赋序号]] do
-        if (type(k) == 'number') then
-            table.insert(list_index, k);
-        end
-    end
-
-    table.sort(list_index);
-
-    local length = #list_index;
-    if (list_index[length] == length) then
-        return true;
-    end
-
-    return false;
-end
 
 
 

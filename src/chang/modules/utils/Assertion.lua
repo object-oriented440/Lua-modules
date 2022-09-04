@@ -11,6 +11,7 @@ _G.setmetatable(_ENV, { __index = function(_, k)
 end });
 
 -- 导入部分
+-- 注意，Assertion 用于基本会被所有文件使用，所以必须保证它的高内聚性！除了公共模块，不允许与其他模块有耦合！
 local ADP = require('chang.modules.utils.ADP');
 
 -- 模块初始化
@@ -32,10 +33,6 @@ function Assertion.isType(v, whatType, stackLevel)
 
     if (type(whatType) ~= 'string') then
         error(string_error_msg, level);
-    elseif (whatType == 'sequence' or whatType == 'list' or whatType == 'set'--[[集合也是列表吧？]]) then
-        if (not ADP.isSequence(v)) then
-            error(other_error_msg, level);
-        end
     elseif (type(v) ~= whatType) then
         error(other_error_msg, level);
     end
