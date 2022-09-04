@@ -4,12 +4,7 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
-      <excludeFolder url="file://$MODULE_DIR$/src/chang/modules/gadgets" />
-      <excludeFolder url="file://$MODULE_DIR$/src/chang/modules/libraries" />
-      <excludeFolder url="file://$MODULE_DIR$/src/chang/modules/notes" />
-      <excludeFolder url="file://$MODULE_DIR$/src/chang/modules/tmp" />
-      <excludeFolder url="file://$MODULE_DIR$/src/chang/modules/utils/incomplete" />
-      <excludeFolder url="file://$MODULE_DIR$/src/chang/modules/utils/datastructure" />
+      <excludeFolder url="file://$MODULE_DIR$/src/chang/modules/libraries/Ellyb-develop" />
     </content>
     <orderEntry type="jdk" jdkName="Lua" jdkType="Lua SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
