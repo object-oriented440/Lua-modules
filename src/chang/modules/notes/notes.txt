@@ -1,0 +1,17 @@
+
+好玩的：
+TODO : 情未了          待实现
+FIXME : Fuck Me         待修正
+XXX : 陷阱            待改进、待完善：标识处代码虽然实现了功能，但是实现的方法有待商榷，希望将来能改进，要改进的地方会在说明中简略说明。
+NOTE : 汝等凡人         Description of how the code works (when it isn’t self evident)
+HACK : 补锅踩雷填坑       待修正
+BUG : 丢锅埋雷挖坑        BUG
+
+
+
+Lua 5.3 参考手册：https://www.runoob.com/manual/lua53doc/contents.html 中文
+
+很重要！！！多看参考手册，才能熟练运用各种 API！
+
+书，领入门，还有很多其他学习路径！不要局限于书！
+ 
