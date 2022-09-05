@@ -9,7 +9,7 @@ _G.setmetatable(_ENV, { __index = function(_, k)
 end });
 
 -- 导入部分
-local Assertion = require('chang.modules.utils.Assertion');
+
 
 -- 模块初始化
 local File = {};

@@ -12,7 +12,11 @@ end });
 
 -- 导入部分
 -- 注意，Assertion 用于基本会被所有文件使用，所以必须保证它的高内聚性！除了公共模块，不允许与其他模块有耦合！
-local ADP = require('chang.modules.utils.ADP');
+local Proxy = require('chang.modules.utils.Proxy');
+
+-- 部分代理
+local Sequence = Proxy.Sequence;
+
 
 -- 模块初始化
 local Assertion = {};
@@ -33,6 +37,10 @@ function Assertion.isType(v, whatType, stackLevel)
 
     if (type(whatType) ~= 'string') then
         error(string_error_msg, level);
+    elseif (whatType == 'sequence') then
+        if (not Sequence.isSequence(v)) then
+            error(other_error_msg, level);
+        end
     elseif (type(v) ~= whatType) then
         error(other_error_msg, level);
     end

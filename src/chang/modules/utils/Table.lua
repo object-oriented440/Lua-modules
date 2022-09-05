@@ -8,9 +8,14 @@ _G.setmetatable(_ENV, { __index = function(_, k)
     return _G.rawget(_G, k);
 end });
 
+-- 该 Table 模块被多方依赖，尽量不要依赖非公共模块以外的其他模块
+
 -- 导入部分
-local Assertion = require('chang.modules.utils.Assertion');
-local File = require('chang.modules.utils.File');
+local Proxy = require('chang.modules.utils.Proxy');
+local Assertion = Proxy.Modules.Assertion();
+
+-- 部分代理
+local Sequence = Proxy.Sequence;
 
 -- 模块初始化
 local Table = {};
@@ -90,6 +95,8 @@ function Table.getSize(t)
 end
 
 local function commonprint(content, mode, filepath)
+    local File = Proxy.Modules.File();
+
     if (mode == 't') then
         print(content);
     elseif (mode == 'f') then
@@ -141,8 +148,8 @@ function Table.print(t, mode, filepath)
         end
     end)
 
-    table.insert(msg,1,'{\n');
-    table.insert(msg,'}\n');
+    Proxy.Modules.Sequence().push_front(msg, '{\n');
+    Proxy.Modules.Sequence().push_back(msg, '}\n')
 
     local content = table.concat(msg);
 
@@ -215,7 +222,7 @@ end
 
 ---`[Lua 5.3]`浅拷贝表（没必要）
 function Table.clone2(t)
-    Assertion:isType(t, 'table');
+    Assertion.isType(t, 'table');
 
     local c = {};
 
@@ -225,7 +232,7 @@ function Table.clone2(t)
 end
 
 function Table.deepClone(t)
-    Assertion:isType(t, 'table');
+    Assertion.isType(t, 'table');
 
     local c = {};
     for k, v in pairs(t) do
@@ -352,11 +359,9 @@ end
 
 ---仅适用索引表！不存在任何空洞的那种，1, 2, 3, ..., n
 function Table.reverse(t)
-    local Sequence = require('chang.modules.utils.Sequence');
     if (not Sequence.isSequence(t)) then
         return t;
     end
-    -- NOTE: 除此处外，尽量不要再在其他地方使用 Sequence 了！循环依赖了！
 
     local size = #t;
     local new_sequence = {};
@@ -367,6 +372,16 @@ function Table.reverse(t)
 
     return new_sequence;
 end
+
+--[[do
+    Proxy.Modules.Load().xpcall(function()
+        -- Test code
+        -- 改变不了，main chunk 尽量不能执行代码的问题，小问题罢了。
+        Table.print(Table.reverse({1,2,3}))
+    end)
+    return;
+end]]
+
 
 ---table<k,v> --> table<v,k>
 function Table.invert(t)
@@ -406,74 +421,51 @@ end]]
 -------------------------------------------------------------------------------------------------
 ---`[弃用]`
 function Table:isList(t)
-    return self.isSequence(t);
+    return Sequence.isSequence(t);
 end
 
 ---`[弃用]`判断：中间不存在空洞的表！纯列表！
 ---@return boolean
 function Table.isSequence(t)
-    local Sequence = require('chang.modules.utils.Sequence');
     return Sequence.isSequence(t);
 end
 
----`[弃用]`
-local function add_list_n(list, amount)
-    amount = amount or 1;
-    if (list.n) then
-        list.n = list.n + amount;
-    end
-end
-
----`[弃用]`
-local function sub_list_n(list, amount)
-    amount = amount or 1;
-    if (list.n) then
-        list.n = list.n - amount;
-    end
-end
 
 -- NOTE: 由于 table 标准库中的这些函数是使用 C 语言实现的，所以移动元素所涉及的循环的性能开销也并不是太昂贵，因而，对于几百个元素的小数组来说这种实现已经足矣。
 
 ---`[弃用]`头 插入数据
 function Table.push_front(list, e)
-    local Sequence = require('chang.modules.utils.Sequence');
     return Sequence.push_front(list);
 end
 
 ---`[弃用]``[Lua 5.3]`头 插入数据
 function Table.push_front2(list, e)
-    local Sequence = require('chang.modules.utils.Sequence');
     return Sequence.push_front2(list);
 end
 
 ---`[弃用]`尾 插入数据
 function Table.push_back(list, e)
-    local Sequence = require('chang.modules.utils.Sequence');
     return Sequence.push_back(list);
 end
 
 ---`[弃用]`头 删除数据
 function Table.pop_front(list)
-    local Sequence = require('chang.modules.utils.Sequence');
     return Sequence.pop_front(list);
 end
 
 ---`[弃用]``[Lua 5.3]`头 删除数据
 function Table.pop_front2(list)
-    local Sequence = require('chang.modules.utils.Sequence');
     return Sequence.pop_front2(list);
 end
 
 ---`[弃用]`尾 删除数据
 function Table.pop_back(list)
-    local Sequence = require('chang.modules.utils.Sequence');
     return Sequence.pop_back(list);
 end
 
 ---`[弃用]``[Lua 5.3]`将列表 a 的元素克隆到列表 b 的末尾
 function Table:add2(a, b)
-    local Sequence = require('chang.modules.utils.Sequence');
-    return Sequence.add2(a,b);
+    return Sequence.add2(a, b);
 end
 
 return Table;

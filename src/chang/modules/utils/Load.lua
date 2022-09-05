@@ -9,7 +9,10 @@ _G.setmetatable(_ENV, { __index = function(_, k)
 end });
 
 -- 导入部分
-local Table = require('chang.modules.utils.Table');
+local Proxy = require('chang.modules.utils.Proxy');
+
+-- 部分代理
+local Table = Proxy.Table;
 
 -- 模块初始化
 local Load = {};
